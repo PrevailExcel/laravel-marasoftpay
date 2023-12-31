@@ -222,7 +222,7 @@ class PaymentController extends Controller
     return MarasoftPay::getLink($data, true);
 
 ```
-
+> "User Bear Charge" is set to true by default in the `config/marasoftpay.php`. If you want to bear charges, you can change it to false. You can also manually override it for a particular method by passing it directly as `'user_bear_charge' => 'no'`
 ### Lets pay with bank transfer now.
 Here you can get a dynamnic account `payWithBankTransfer($amount)` for a one time payment , or you can get a reserved account `getReservedAccount($data)` or recurring payments.
 ```php
@@ -261,13 +261,37 @@ class PaymentController extends Controller
             return redirect()->back()->withMessage(['msg' => $e->getMessage(), 'type' => 'error']);
         }
     }
+}
+```
+This will return data that includes the account details which you will display or send to your user to make payment.
 
+### Handling Webhook
+You can listen to the webhook and service the user. Write the heavy operations inside the `handleWebhook()` method.
+
+This package will verify the webhook using the secret hash, identify the event that produced the webhook and then add an event key which can be either of the three:
+
+    CHECKOUT
+    RESERVED
+    PAYOUT
+
+#### In your controller
+
+```php
     public function handleWebhook()
     {
         // verify webhook and get data
         marasoftpay()->getWebhookData()->proccessData(function ($data) {
             // Do something with $data
             logger($data);
+            $decodedData = json_decode($data, true);
+            if (decodedData['event'] == 'CHECKOUT') {
+            // Do Something
+            } else if (decodedData['event'] == 'RESERVED') {
+            // Do Another Thing
+            } else {
+                // Do Any other thing
+            }
+            
             // If you have heavy operations, dispatch your queued jobs for them here
             // OrderJob::dispatch($data);
         });
@@ -275,12 +299,7 @@ class PaymentController extends Controller
         // Acknowledge you received the response
         return http_response_code(200);
     }
-}
 ```
-### Handling Webhook
-
-This will return data that includes the account details which you will display or send to your user to make payment.
-You can listen to the webhook and service the user. Write the heavy operations inside the `handleWebhook()` method.
 
 > This package recommends to use a queued job to proccess the webhook data especially if you handle heavy operations like sending mail and more 
 
@@ -292,6 +311,12 @@ protected $except = [
     'marasoftpay/webhook',
 ];
 ```
+
+Add the  `'marasoftpay/webhook'` endpoint URL to the three webhook fields on your MarasoftPay;
+
+    Payments Webhook URL : 127.0.0.1:8000/marasoftpay/webhook
+    Transfers Webhook URL : 127.0.0.1:8000/marasoftpay/webhook
+    Card Webhook URL : 127.0.0.1:8000/marasoftpay/webhook
 
 
 #### A sample form will look like so:
@@ -331,11 +356,102 @@ In the controller that handles the request coming from the payment provider, we 
 `MarasoftPay::getPaymentData()` - This function calls the `verifyTransaction()` methods and ensure it is a valid transaction else it throws an exception.
 
 
+### Some Other fluent methods this package provides are listed here.
 
+#### Collection
 
+```php
+/**
+ * Make payment with MPESA mobile money
+ * @returns array
+ */
+MarasoftPay::payWithMobileMoney(?array $data);
+// Or
+marasoftpay()->payWithMobileMoney(?array $data);
 
+/**
+ * Make payment via USSD
+ * @returns array
+ */
+MarasoftPay::ussd();
 
+/**
+ * Check your balance for the different currencies available
+ * @returns array
+ */
+MarasoftPay::checkBalance();
+```
 
+#### Account
+
+```php
+/**
+ * Generate account statements with custom date ranges
+ * @returns array
+ */
+MarasoftPay::accountStatement(?string $start_date = null, ?string $end_date = null);
+
+/**
+ * Generate transfer history statements with custom date ranges
+ * @returns array
+ */
+MarasoftPay::transferHistory(?string $start_date = null, ?string $end_date = null);
+
+/**
+ * Generate payments history statements with custom date ranges
+ * @returns array
+ */
+MarasoftPay::paymentsHistory(?string $start_date = null, ?string $end_date = null);
+
+/**
+ * Generate reserved account history statements with custom date ranges
+ * @returns array
+ */
+MarasoftPay::reservedAccountHistory(?string $start_date = null, ?string $end_date = null);
+
+```
+
+#### Payout
+
+```php
+/**
+ * Move funds from your Marasoft Pay balance to a bank account.
+ * @returns array
+ */
+MarasoftPay::transfer($data = null);
+```
+
+#### Tools
+
+```php
+/**
+ * Get all the bank codes for all existing banks in our operating countries.
+ * @returns array
+ */
+MarasoftPay::getBanks();
+
+/**
+ * Verify the status of a transaction carried out on your Marasoft Pay account
+ * @returns array
+ */
+MarasoftPay::verifyTransaction(?string $ref = null);
+// Or
+request()->ref = "reference";
+marasoftpay()->verifyTransaction();
+
+/**
+ * Verify the status of a transfer carried out from your Marasoft Pay account 
+ * @returns array
+ */
+MarasoftPay::verifyTransfer(?string $ref = null);
+
+/**
+ * Verify the owner of a bank account using the bank code and the account uumber 
+ * @returns array
+ */
+MarasoftPay::confirmAccount(?string $bank_code = null, ?string $account_number = null);
+
+```
 
 ## Todo
 
@@ -350,7 +466,8 @@ Please feel free to fork this package and contribute by submitting a pull reques
 Why not star the github repo? I'd love the attention! Why not share the link for this repository on Twitter or HackerNews? Spread the word!
 
 Thanks!
-Chimeremeze Prevail Ejimadu, Akindipe Ambrose.
+[Chimeremeze Prevail Ejimadu](https://x.com/EjimaduPrevail), 
+[Akindipe Ambrose](https://x.com/AkindipeAmbrose).
 
 ## License
 
