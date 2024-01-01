@@ -37,6 +37,14 @@ return [
      */
     'hash' => env('MARASOFTPAY_HASH', 'MarasoftPay'), // OR "LIVE"
 
+
+    /**
+     * MARASOFTPAY Base URL
+     *
+     */
+    'user_bear_charge' => env('MARASOFTPAY_USER_BEAR_CHARGE', "yes"),
+
+
     /**
      * MARASOFTPAY Base URL
      *

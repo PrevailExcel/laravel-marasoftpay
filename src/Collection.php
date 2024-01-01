@@ -99,6 +99,26 @@ trait Collection
      */
     public function ussd($data = null): array
     {
-        return $ussd = ["hbhgh"];
+        $def = [
+            "merchant_ref" => Random::generate(),
+            "ref_id" => Random::generate(),
+            "currency" => request()->currency ?? "NGN",
+            "user_bear_charge" => Config::get('marasoftpay.user_bear_charge'),
+            'redirect_url' => request()->redirect_url ?? "google.com",
+        ];
+
+        if ($data == null) {
+            $data = [
+                'user_bank_code' => request()->user_bank_code,
+                'name' => request()->name,
+                'email_address' => request()->email_address,
+                'phone_number' => request()->phone_number,
+                'amount' => request()->amount,
+                'description' => request()->description,
+            ];
+        }
+        $data = array_merge($def, $data);
+
+        return $this->setHttpResponse('/ussd/get_ussd_code', 'POST', array_filter($data))->getResponse();
     }
 }
