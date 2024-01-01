@@ -324,6 +324,8 @@ Add the  `'marasoftpay/webhook'` endpoint URL to the three webhook fields on you
     Transfers Webhook URL : 127.0.0.1:8000/marasoftpay/webhook
     Card Webhook URL : 127.0.0.1:8000/marasoftpay/webhook
 
+![Add Webhook to dashboard](image.png)
+
 
 #### A sample form will look like so:
 ```blade
