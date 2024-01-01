@@ -104,7 +104,7 @@ trait Collection
             "ref_id" => Random::generate(),
             "currency" => request()->currency ?? "NGN",
             "user_bear_charge" => Config::get('marasoftpay.user_bear_charge'),
-            'redirect_url' => request()->redirect_url ?? "google.com",
+            'redirect_url' => route('marasoftpay.lara.callback'),
         ];
 
         if ($data == null) {

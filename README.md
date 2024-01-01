@@ -91,7 +91,13 @@ return [
      * It serves as a form of verification to prove that the webhook is coming from Marasoft Pay.
      *
      */
-    'hash' => env('MARASOFTPAY_HASH', 'MarasoftPay'), // OR "LIVE"
+    'hash' => env('MARASOFTPAY_HASH', 'MarasoftPay'), // OR "LIVE"    
+    
+    /**
+     * Should user bear charge?
+     *
+     */
+    'user_bear_charge' => "yes", // or "no"
 
     /**
      * MARASOFTPAY Base URL

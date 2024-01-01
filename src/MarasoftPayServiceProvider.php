@@ -47,10 +47,10 @@ class MarasoftPayServiceProvider extends ServiceProvider
          * @param  array|string $controller
          * @param  string|null  $class
          * */
-        Route::macro('MCallback', function ($controller, string $class = 'handleGatewayCallback') {
+        Route::macro('callback', function ($controller, string $class = 'handleGatewayCallback') {
             return Route::any('marasoftpay/callback', [$controller, $class])->name("marasoftpay.lara.callback");
         });
-        Route::macro('MWebhook', function ($controller, string $class = 'handleWebhook') {
+        Route::macro('webhook', function ($controller, string $class = 'handleWebhook') {
             return Route::post('marasoftpay/webhook', [$controller, $class])->name("marasoftpay.lara.webhook");
         });
     }
